@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Us | The Dream</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Playfair+Display:ital,wght@0,400;0,600;0,800;1,400&family=Great+Vibes&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #050207;
+      --text: #e6e6fa;
+      --accent: #ffe4b5;
+      --rose: #dda0dd;
+      --paper-bg: #f7f3ed;
+      --paper-text: #2a1b1b;
+    }
+
+    * { cursor: none; box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Cormorant Garamond', serif;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+
+    /* --- BACKGROUND (Cosmic) --- */
+    .cosmic-bg {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      z-index: -2; overflow: hidden; pointer-events: none;
+    }
+    .stars {
+      width: 1px; height: 1px; background: transparent;
+      animation: twinkle 5s infinite;
+    }
+    @keyframes twinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.8; } }
+
+    .dream-blob {
+      position: absolute; filter: blur(100px); opacity: 0.4;
+      animation: floatDream 30s infinite alternate ease-in-out;
+    }
+    .blob-1 { top: -10%; left: -10%; width: 80vw; height: 80vw; background: radial-gradient(circle, #2a0a2a, transparent 70%); }
+    .blob-2 { bottom: -10%; right: -10%; width: 90vw; height: 90vw; background: radial-gradient(circle, #0a1a2a, transparent 70%); animation-delay: -10s; }
+
+    @keyframes floatDream { 0% { transform: translate(0, 0) rotate(0deg); } 100% { transform: translate(50px, -30px) rotate(10deg); } }
+
+    .grain {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 9999; opacity: 0.04;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+
+    /* --- CURSOR --- */
+    .cursor-dot, .cursor-outline {
+      position: fixed; top: 0; left: 0; transform: translate(-50%, -50%);
+      border-radius: 50%; z-index: 10000; pointer-events: none;
+    }
+    .cursor-dot {
+      width: 4px; height: 4px; background-color: #fff;
+      box-shadow: 0 0 10px #fff, 0 0 20px var(--rose);
+    }
+    .cursor-outline {
+      width: 30px; height: 30px; border: 1px solid rgba(255, 255, 255, 0.3);
+      transition: 0.4s;
+    }
+    body:hover .cursor-outline.hovered {
+      width: 60px; height: 60px;
+      background: rgba(255, 255, 255, 0.05);
+      border-color: var(--rose);
+      box-shadow: 0 0 15px var(--rose);
+    }
+
+    /* --- START SCREEN --- */
+    #start-screen {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: var(--bg); z-index: 20000;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      transition: opacity 1.5s cubic-bezier(0.77, 0, 0.175, 1);
+    }
+    #start-screen::before {
+      content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+      background: radial-gradient(circle, rgba(221,160,221,0.1), transparent 60%);
+      animation: pulseStart 8s infinite alternate;
+    }
+    @keyframes pulseStart { from { transform: scale(0.8); } to { transform: scale(1.1); } }
+
+    .start-btn {
+      padding: 18px 50px; border: 1px solid var(--rose);
+      color: var(--rose); background: rgba(0,0,0,0.3);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.2rem; letter-spacing: 3px; text-transform: uppercase;
+      cursor: pointer; transition: 0.6s; border-radius: 50px;
+      backdrop-filter: blur(10px); position: relative; z-index: 2;
+    }
+    .start-btn:hover {
+      background: var(--rose); color: #000;
+      box-shadow: 0 0 50px var(--rose);
+      letter-spacing: 5px; transform: scale(1.05);
+    }
+
+    /* --- SECTIONS (General) --- */
+    .story-section {
+      min-height: 100vh;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 20px;
+      opacity: 0; /* Hidden by default */
+      transition: opacity 1s ease;
+    }
+    .story-section.active {
+      opacity: 1;
+    }
+
+    h1, h2, h3 { font-family: 'Playfair Display', serif; font-style: italic; font-weight: 400; }
+    .script-font { font-family: 'Great Vibes', cursive; font-weight: 400; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
+
+    /* --- NEXT BUTTON --- */
+    .next-btn-container {
+      margin-top: 50px;
+      opacity: 0;
+      transition: opacity 0.5s;
+    }
+    .next-btn-container.show { opacity: 1; }
+
+    .nav-btn {
+      padding: 15px 40px; font-size: 1rem; font-family: 'Playfair Display', serif;
+      background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--accent);
+      border-radius: 30px; cursor: pointer; transition: 0.6s; letter-spacing: 2px; backdrop-filter: blur(10px);
+    }
+    .nav-btn:hover { background: var(--accent); color: #000; transform: translateY(-3px); box-shadow: 0 0 20px var(--accent); }
+
+    /* --- 1. INTRO HEART FLOW --- */
+    #heart-canvas {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 19999; display: none;
+    }
+
+    /* --- 2. STORY TEXT --- */
+    .story-text-container { text-align: center; }
+    .story-text-line {
+      font-family: 'Great Vibes', cursive;
+      font-size: 4rem;
+      color: #fff;
+      margin: 10px 0;
+      opacity: 0;
+      transform: translateY(20px);
+      filter: drop-shadow(0 0 15px rgba(221, 160, 221, 0.5));
+    }
+    .story-text-line.animate {
+      opacity: 1;
+      transform: translateY(0);
+      transition: all 1s ease;
+    }
+    .story-names {
+      font-size: clamp(40px, 8vw, 80px);
+      background: linear-gradient(to right, #fff, #e6e6fa, #dda0dd);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    /* --- 3. GALLERY (One by One) --- */
+    .gallery-container {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+      max-width: 1200px;
+      margin-top: 40px;
+    }
+
+    .gallery-item {
+      width: 300px; height: 400px;
+      border-radius: 20px; overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+      opacity: 0; transform: translateY(50px) scale(0.9);
+      transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      position: relative;
+      background: rgba(255,255,255,0.03);
+      pointer-events: none; /* Disable interaction until all loaded */
+    }
+    .gallery-item.visible {
+      opacity: 1; transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+    .gallery-item img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: 0.5s;
+      filter: brightness(0.8);
+    }
+    .gallery-item.visible:hover img { filter: brightness(1); transform: scale(1.05); }
+
+    /* --- 4. COUNTER --- */
+    .counter-grid { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; margin-top: 30px; }
+    .counter-box { text-align: center; }
+    .counter-num {
+      font-size: 3.5rem; font-weight: 300; color: #fff;
+      text-shadow: 0 0 20px var(--rose);
+      font-family: 'Playfair Display', serif; display: block;
+    }
+    .counter-label {
+      font-size: 0.9rem; text-transform: uppercase;
+      letter-spacing: 3px; color: rgba(255,255,255,0.4);
+      margin-top: 5px; display: block;
+    }
+
+    /* --- 5. LETTER (Surrounding Hearts) --- */
+    .letter-container {
+      position: relative;
+      z-index: 10;
+    }
+    #letter-heart-canvas {
+      position: absolute;
+      top: -50px; left: -50px;
+      width: calc(100% + 100px);
+      height: calc(100% + 100px);
+      pointer-events: none;
+      z-index: 11;
+    }
+
+    .love-sheet {
+      width: min(600px, 90vw); 
+      height: auto; min-height: 400px; 
+      background: var(--paper-bg);
+      border-radius: 10px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 30px 60px rgba(0,0,0,.35);
+      transition: height 0.5s ease;
+    }
+
+    /* Letter Decor SVGs (Compact) */
+    .top-hearts, .bottom-decor {
+      position: absolute; left: 0; width: 100%;
+      z-index: 3; pointer-events: none;
+    }
+    .top-hearts { top: 0; height: 60px; filter: drop-shadow(0 4px 6px rgba(0,0,0,.15)); }
+    .bottom-decor { bottom: 0; height: 100px; filter: drop-shadow(0 8px 12px rgba(0,0,0,.15)); }
+
+    .love-letter-content {
+      position: relative; z-index: 5;
+      padding: 60px 30px 80px; 
+      color: var(--paper-text); display: flex; flex-direction: column;
+    }
+    .love-letter-title {
+      font-family: 'Great Vibes', cursive;
+      font-size: clamp(32px, 4vw, 48px); color: #8b0030;
+      text-align: center; margin-bottom: 10px;
+    }
+    .love-letter-text {
+      font-family: 'Great Vibes', cursive;
+      font-size: clamp(20px, 2.2vw, 28px);
+      line-height: 1.5; white-space: pre-wrap;
+    }
+    .love-letter-text.typing::after{
+      content:"|"; margin-left: 4px; color: #d9003a;
+      animation: blink 1.05s steps(2) infinite;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* --- 6. PROMISE --- */
+    .promise-container { text-align: center; }
+    .final-btn {
+      padding: 30px 70px; font-size: 1.8rem;
+      background: rgba(255,255,255,0.05); color: #fff; 
+      border: 2px solid var(--accent); border-radius: 60px;
+      cursor: pointer; transition: 0.6s; letter-spacing: 3px;
+      backdrop-filter: blur(10px); font-family: 'Playfair Display', serif;
+    }
+    .final-btn:hover { background: var(--accent); color: #000; box-shadow: 0 0 60px var(--accent); transform: scale(1.1); }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .story-text-line { font-size: 2.5rem; }
+      .gallery-item { width: 80vw; height: 100vw; max-width: 350px; max-height: 450px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- CANVASES -->
+  <canvas id="heart-canvas"></canvas>
+
+  <div class="cosmic-bg">
+    <div class="stars" id="star-layer"></div>
+    <div class="dream-blob blob-1"></div>
+    <div class="dream-blob blob-2"></div>
+  </div>
+  <div class="grain"></div>
+
+  <div class="cursor-dot" id="cursor-dot"></div>
+  <div class="cursor-outline" id="cursor-outline"></div>
+
+  <!-- AUDIO -->
+  <audio id="bg-music" loop>
+    <source src="song.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- 0. INTRO SCREEN -->
+  <div id="start-screen">
+    <h1 class="script-font" style="font-size: 3rem; margin-bottom: 10px; color: #fff; z-index: 2;">A Dream</h1>
+    <p style="color: rgba(255,255,255,0.5); margin-bottom: 40px; font-size: 0.9rem; letter-spacing: 2px; z-index: 2;">
+      Headphones On
+    </p>
+    <button class="start-btn" id="startBtn">Start Dream</button>
+  </div>
+
+  <!-- MAIN CONTENT (SECTIONS) -->
+  <main id="mainContent" style="display:none;">
+
+    <!-- 2. STORY TEXT SECTION -->
+    <div class="story-section" id="section-story">
+      <div class="story-text-container">
+        <div class="story-text-line script-font">The Story of</div>
+        <div class="story-text-line story-names script-font">Kaviraj & Priya</div>
+        <div style="margin-top:20px; font-family:'Cormorant Garamond'; font-size:1.2rem; color: #aaa;">
+          Since 14th February, 2023
+        </div>
+      </div>
+      <div class="next-btn-container" id="btn-cont-story">
+        <button class="nav-btn" onclick="nextSection('section-gallery')">Next</button>
+      </div>
+    </div>
+
+    <!-- 3. GALLERY SECTION (ONE BY ONE) -->
+    <div class="story-section" id="section-gallery">
+      <h2 class="script-font" style="font-size: 2.5rem; color: var(--rose); margin-bottom: 30px;">Our Journey</h2>
+      
+      <div class="gallery-container" id="galleryContainer">
+        <!-- Items injected by JS or static -->
+        <div class="gallery-item">
+          <img src="https://png.pngtree.com/png-clipart/20250122/original/pngtree-happy-rose-day-cute-couple-sharing-red-roses-romantic-love-png-image_19991803.png" alt="First Date">
+        </div>
+        <div class="gallery-item">
+          <img src="https://png.pngtree.com/png-vector/20240723/ourmid/pngtree-cartoon-loving-couple-sitting-on-heart-swing-of-love-is-in-png-image_13016816.png" alt="Sunset">
+        </div>
+        <div class="gallery-item">
+          <img src="https://img.freepik.com/premium-photo/cute-boy-girl-love-romantic-valentine-s-day-hand-drawn-cartoon-style-3d-illustration_967785-7778.jpg" alt="Rain">
+        </div>
+        <div class="gallery-item">
+          <img src="https://img.freepik.com/premium-photo/vector-detailed-flat-illustration-hugging-couple-hearts-background_967785-10430.jpg" alt="Mountains">
+        </div>
+        <div class="gallery-item">
+          <img src="https://png.pngtree.com/png-vector/20240528/ourmid/pngtree-love-you-romantic-couple-vector-png-image_12489542.png" alt="Lazy">
+        </div>
+        <div class="gallery-item">
+          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSo6onA-jmsag63HOd66neu-THnQibTS1q_9g&s" alt="Promise">
+        </div>
+      </div>
+
+      <div class="next-btn-container" id="btn-cont-gallery">
+        <button class="nav-btn" onclick="nextSection('section-timer')">Next</button>
+      </div>
+    </div>
+
+    <!-- 4. COUNTER SECTION -->
+    <div class="story-section" id="section-timer">
+      <h2 class="script-font" style="font-size: 2.5rem; margin-bottom: 20px; color: #fff;">Counting Every Star</h2>
+      <div class="counter-grid">
+        <div class="counter-box"><span class="counter-num" id="days">0</span><span class="counter-label">Days</span></div>
+        <div class="counter-box"><span class="counter-num" id="hours">0</span><span class="counter-label">Hours</span></div>
+        <div class="counter-box"><span class="counter-num" id="minutes">0</span><span class="counter-label">Minutes</span></div>
+        <div class="counter-box"><span class="counter-num" id="seconds">0</span><span class="counter-label">Seconds</span></div>
+      </div>
+      <div class="next-btn-container" id="btn-cont-timer">
+        <button class="nav-btn" onclick="nextSection('section-letter')">Next</button>
+      </div>
+    </div>
+
+    <!-- 5. LETTER SECTION -->
+    <div class="story-section" id="section-letter">
+      <div class="letter-container">
+        <canvas id="letter-heart-canvas"></canvas>
+        <div class="love-sheet" id="loveSheet">
+          <!-- Decor -->
+          <svg class="top-hearts" viewBox="0 0 900 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <defs><linearGradient id="heartGrad" x1="0" x2="1"><stop offset="0" stop-color="#ff3b6b"/><stop offset="1" stop-color="#b50030"/></linearGradient></defs>
+            <g fill="url(#heartGrad)" opacity=".9">
+               <path d="M100 60c-10-12 5-24 15-12 10-10 25 2 15 12-4 6-15 12-15 12s-11-6-15-12z"/>
+               <path d="M300 70c-10-12 5-24 15-12 10-10 25 2 15 12-4 6-15 12-15 12s-11-6-15-12z"/>
+               <path d="M500 55c-10-12 5-24 15-12 10-10 25 2 15 12-4 6-15 12-15 12s-11-6-15-12z"/>
+               <path d="M700 65c-10-12 5-24 15-12 10-10 25 2 15 12-4 6-15 12-15 12s-11-6-15-12z"/>
+            </g>
+          </svg>
+          <svg class="bottom-decor" viewBox="0 0 900 150" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <defs><linearGradient id="ribbon" x1="0" x2="1"><stop offset="0" stop-color="#ff3b6b"/><stop offset="1" stop-color="#b50030"/></linearGradient></defs>
+            <g fill="url(#ribbon)" opacity=".9">
+              <path d="M150 120c-30-35 15-70 45-35 30-25 75 10 45 35-10 15-45 35-45 35s-35-20-45-35z"/>
+              <path d="M750 120c-30-35 15-70 45-35 30-25 75 10 45 35-10 15-45 35-45 35s-35-20-45-35z"/>
+            </g>
+          </svg>
+          
+          <div class="love-letter-content">
+            <div class="love-letter-title">My Love</div>
+            <div class="love-letter-text typing" id="loveLetterText"></div>
+          </div>
+        </div>
+      </div>
+      <div class="next-btn-container" id="btn-cont-letter">
+        <button class="nav-btn" onclick="nextSection('section-promise')">Next</button>
+      </div>
+    </div>
+
+    <!-- 6. PROMISE SECTION -->
+    <div class="story-section" id="section-promise">
+      <div class="promise-container">
+        <h2 class="script-font" style="font-size: 3rem; margin-bottom: 50px; color: #fff;">To Infinity & Beyond</h2>
+        <button class="final-btn" id="finalBtn">I Choose You</button>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    // --- 1. STARS & CURSOR ---
+    const starLayer = document.getElementById('star-layer');
+    let boxShadow = '';
+    for(let i=0; i<150; i++) boxShadow += `${Math.random() * 2000}px ${Math.random() * 2000}px #FFF, `;
+    starLayer.style.boxShadow = boxShadow.slice(0, -2);
+
+    const cursorDot = document.getElementById('cursor-dot');
+    const cursorOutline = document.getElementById('cursor-outline');
+    document.addEventListener('mousemove', (e) => {
+      cursorDot.style.left = `${e.clientX}px`;
+      cursorDot.style.top = `${e.clientY}px`;
+      cursorOutline.animate({ left: `${e.clientX}px`, top: `${e.clientY}px` }, { duration: 500, fill: "forwards" });
+    });
+    const interactiveElements = document.querySelectorAll('button');
+    interactiveElements.forEach(el => {
+      el.addEventListener('mouseenter', () => cursorOutline.classList.add('hovered'));
+      el.addEventListener('mouseleave', () => cursorOutline.classList.remove('hovered'));
+    });
+
+    // --- 2. GLOBAL VARIABLES ---
+    let currentSectionId = '';
+    
+    // --- 3. HEART FLOW SYSTEM ---
+    const heartCanvas = document.getElementById('heart-canvas');
+    const hCtx = heartCanvas.getContext('2d');
+    let heartParticles = [];
+    let heartAnimId;
+
+    function resizeHeartCanvas() {
+      heartCanvas.width = window.innerWidth;
+      heartCanvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeHeartCanvas);
+    resizeHeartCanvas();
+
+    class HeartParticle {
+      constructor() {
+        this.reset();
+        this.y = Math.random() * heartCanvas.height; // Start anywhere
+      }
+      reset() {
+        this.x = Math.random() * heartCanvas.width;
+        this.y = -50;
+        this.velocity = Math.random() * 2 + 1;
+        this.size = Math.random() * 10 + 8;
+        this.color = `rgba(255, ${50 + Math.random()*100}, ${100 + Math.random()*100}, ${Math.random() * 0.6 + 0.4})`;
+        this.oscillation = Math.random() * 1.5;
+        this.step = Math.random() * Math.PI * 2;
+      }
+      update() {
+        this.y += this.velocity;
+        this.step += 0.04;
+        this.x += Math.sin(this.step) * this.oscillation;
+        if (this.y > heartCanvas.height + 50) {
+           // If not in "temporary" mode (3s flow), reset to top
+           if (heartCanvas.dataset.mode !== 'temp') {
+             this.reset();
+           } else {
+             // If temp mode, just let it go away
+             this.y = heartCanvas.height + 100; 
+           }
+        }
+      }
+      draw() {
+        hCtx.fillStyle = this.color;
+        hCtx.beginPath();
+        let s = this.size; let cx = this.x; let cy = this.y;
+        hCtx.moveTo(cx, cy + s*0.3);
+        hCtx.bezierCurveTo(cx, cy, cx - s/2, cy, cx - s/2, cy + s*0.3);
+        hCtx.bezierCurveTo(cx - s/2, cy + (s+s*0.3)/2, cx, cy + (s+s*0.3)/2 + s/2, cx, cy + s);
+        hCtx.bezierCurveTo(cx, cy + (s+s*0.3)/2 + s/2, cx + s/2, cy + (s+s*0.3)/2, cx + s/2, cy + s*0.3);
+        hCtx.bezierCurveTo(cx + s/2, cy, cx, cy, cx, cy + s*0.3);
+        hCtx.fill();
+      }
+    }
+
+    function startHeartFlow(mode = 'continuous') {
+      heartCanvas.dataset.mode = mode;
+      heartCanvas.style.display = 'block';
+      heartParticles = [];
+      for (let i = 0; i < 80; i++) heartParticles.push(new HeartParticle());
+      animateHearts();
+    }
+
+    function stopHeartFlow() {
+      // Clear canvas but let particles fall off naturally or immediate clear?
+      // Let's immediate clear for clean transitions between sections
+      heartCanvas.style.display = 'none';
+      cancelAnimationFrame(heartAnimId);
+      hCtx.clearRect(0, 0, heartCanvas.width, heartCanvas.height);
+    }
+
+    function animateHearts() {
+      hCtx.clearRect(0, 0, heartCanvas.width, heartCanvas.height);
+      let activeCount = 0;
+      heartParticles.forEach(p => { p.update(); p.draw(); if(p.y < heartCanvas.height + 50) activeCount++; });
+      heartAnimId = requestAnimationFrame(animateHearts);
+    }
+
+    // --- 4. INTRO & NAVIGATION LOGIC ---
+    const startScreen = document.getElementById('start-screen');
+    const startBtn = document.getElementById('startBtn');
+    const mainContent = document.getElementById('mainContent');
+    const bgMusic = document.getElementById('bg-music');
+
+    startBtn.addEventListener('click', () => {
+      bgMusic.volume = 0.4;
+      bgMusic.play().catch(e => console.log("Audio blocked", e));
+      
+      // 1. Fade out start screen
+      startScreen.style.opacity = '0';
+      setTimeout(() => { startScreen.style.display = 'none'; }, 1500);
+
+      // 2. Start 3 second heart flow
+      startHeartFlow('temp');
+      
+      // 3. After 3 seconds, show Story Section
+      setTimeout(() => {
+        stopHeartFlow();
+        mainContent.style.display = 'block';
+        showSection('section-story');
+      }, 3000);
+    });
+
+    function showSection(id) {
+      // Hide all
+      document.querySelectorAll('.story-section').forEach(s => {
+        s.style.display = 'none';
+        s.classList.remove('active');
+      });
+
+      // Show current
+      const sec = document.getElementById(id);
+      sec.style.display = 'flex';
+      
+      // Small delay to allow display change to render before opacity transition
+      setTimeout(() => {
+        sec.classList.add('active');
+      }, 50);
+
+      currentSectionId = id;
+      runSectionLogic(id);
+    }
+
+    function nextSection(nextId) {
+      showSection(nextId);
+    }
+
+    // --- 5. SECTION SPECIFIC LOGIC ---
+
+    function runSectionLogic(id) {
+      if (id === 'section-story') {
+        // Typewriter effect
+        const lines = document.querySelectorAll('.story-text-line');
+        let delay = 0;
+        lines.forEach((line, index) => {
+          setTimeout(() => {
+            line.classList.add('animate');
+          }, delay);
+          delay += 1500; // 1.5s between lines
+        });
+        setTimeout(() => {
+          document.getElementById('btn-cont-story').classList.add('show');
+        }, delay + 500);
+      } 
+      else if (id === 'section-gallery') {
+        // Show images one by one
+        const items = document.querySelectorAll('.gallery-item');
+        items.forEach((item, index) => {
+          setTimeout(() => {
+            item.classList.add('visible');
+          }, index * 600); // 600ms delay each
+        });
+        setTimeout(() => {
+          document.getElementById('btn-cont-gallery').classList.add('show');
+        }, items.length * 600 + 500);
+      } 
+      else if (id === 'section-timer') {
+        setTimeout(() => {
+          document.getElementById('btn-cont-timer').classList.add('show');
+        }, 500);
+      }
+      else if (id === 'section-letter') {
+        // Typewriter logic
+        const loveLetterString = `My Dearest,\n\nIn a world full of chaos,\nyou are my calm.\n\nEvery second with you feels like magic,\nand I promise to hold your hand\nthrough every storm and every sunshine.\n\nIf love is a dream,\nthen let me stay lost in you — forever.\n\nAlways yours,\nKaviraj ❤`;
+        
+        const loveLetterEl = document.getElementById("loveLetterText");
+        loveLetterEl.textContent = "";
+        loveLetterEl.classList.add("typing");
+        
+        let li = 0;
+        // Start Letter Specific Heart Flow (Surrounding)
+        startLetterHearts();
+
+        function typeWriter() {
+          if (li < loveLetterString.length) {
+            loveLetterEl.textContent += loveLetterString.charAt(li);
+            li++;
+            setTimeout(typeWriter, 35);
+          } else {
+            loveLetterEl.classList.remove("typing");
+            document.getElementById('btn-cont-letter').classList.add('show');
+          }
+        }
+        // Start typing slightly after showing section
+        setTimeout(typeWriter, 800);
+      }
+    }
+
+    // --- 6. TIMER ---
+    const startDate = new Date("2023-02-14T00:00:00").getTime();
+    setInterval(() => {
+      const now = new Date().getTime();
+      const distance = now - startDate;
+      if(!isNaN(distance)) {
+        document.getElementById('days').innerText = Math.floor(distance / (1000 * 60 * 60 * 24));
+        document.getElementById('hours').innerText = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        document.getElementById('minutes').innerText = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        document.getElementById('seconds').innerText = Math.floor((distance % (1000 * 60)) / 1000);
+      }
+    }, 1000);
+
+    // --- 7. LETTER SURROUND HEARTS ---
+    const lCanvas = document.getElementById('letter-heart-canvas');
+    const lCtx = lCanvas.getContext('2d');
+    let lParticles = [];
+    let lAnimId;
+
+    function resizeLCanvas() {
+      const container = document.querySelector('.letter-container');
+      if(container) {
+        lCanvas.width = container.offsetWidth + 200; // Extra space
+        lCanvas.height = container.offsetHeight + 200;
+      }
+    }
+    window.addEventListener('resize', resizeLCanvas);
+    // Initial call delayed until section visible
+    setTimeout(resizeLCanvas, 100);
+
+    function startLetterHearts() {
+      resizeLCanvas();
+      lParticles = [];
+      // Create hearts that spawn around the paper
+      for(let i=0; i<60; i++) {
+        lParticles.push({
+          x: Math.random() * lCanvas.width,
+          y: Math.random() * lCanvas.height,
+          vx: (Math.random() - 0.5) * 1,
+          vy: (Math.random() - 0.5) * 1,
+          size: Math.random() * 8 + 4,
+          color: `rgba(255, ${50 + Math.random()*100}, ${100 + Math.random()*100}, 0.6)`
+        });
+      }
+      animateLetterHearts();
+    }
+
+    function animateLetterHearts() {
+      lCtx.clearRect(0, 0, lCanvas.width, lCanvas.height);
+      lParticles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        
+        // Bounce off "paper" roughly
+        if(p.x < 50 || p.x > lCanvas.width - 50) p.vx *= -1;
+        if(p.y < 50 || p.y > lCanvas.height - 50) p.vy *= -1;
+
+        lCtx.fillStyle = p.color;
+        lCtx.beginPath();
+        let s = p.size; let cx = p.x; let cy = p.y;
+        lCtx.moveTo(cx, cy + s*0.3);
+        lCtx.bezierCurveTo(cx, cy, cx - s/2, cy, cx - s/2, cy + s*0.3);
+        lCtx.bezierCurveTo(cx - s/2, cy + (s+s*0.3)/2, cx, cy + (s+s*0.3)/2 + s/2, cx, cy + s);
+        lCtx.bezierCurveTo(cx, cy + (s+s*0.3)/2 + s/2, cx + s/2, cy + (s+s*0.3)/2, cx + s/2, cy + s*0.3);
+        lCtx.bezierCurveTo(cx + s/2, cy, cx, cy, cx, cy + s*0.3);
+        lCtx.fill();
+      });
+      lAnimId = requestAnimationFrame(animateLetterHearts);
+    }
+
+    // --- 8. FINAL PROMISE ---
+    const finalBtn = document.getElementById('finalBtn');
+    finalBtn.addEventListener('click', () => {
+      finalBtn.innerHTML = "Forever & Always ❤️";
+      finalBtn.style.borderColor = "#fff";
+      finalBtn.style.background = "#fff";
+      finalBtn.style.color = "#000";
+      
+      // Optional: Trigger one last big heart shower
+      startHeartFlow();
+    });
+
+  </script>
+</body>
+</html>
